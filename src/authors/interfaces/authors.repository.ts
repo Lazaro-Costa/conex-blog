@@ -16,6 +16,7 @@ export type SearchResult = {
   total: number
 }
 export interface IAuthorsRepository {
+  sortableFiedls: string[]
   create(data: ICreateAuthor): Promise<Author>
   update(author: Author): Promise<Author>
   delete(id: string): Promise<Author>
