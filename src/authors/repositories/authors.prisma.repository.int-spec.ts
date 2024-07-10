@@ -41,4 +41,9 @@ describe('AuthorsPrismaRepository Integration Tests', () => {
     const result = await repository.findById(author.id)
     expect(result).toStrictEqual(author)
   })
+  test('should create an Author', async () => {
+    const data = AuthorDataBuilder({})
+    const result = await repository.create(data)
+    expect(result).toMatchObject(data)
+  })
 })

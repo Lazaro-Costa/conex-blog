@@ -11,8 +11,8 @@ import { NotFoundError } from '@/shared/errors/not-found-error'
 export class AuthorsPrismaRepository implements IAuthorsRepository {
   constructor(private prisma: PrismaService) {}
   sortableFiedls: string[] = ['name', 'email', 'createdAt']
-  create(data: ICreateAuthor): Promise<Author> {
-    throw new Error('Method not implemented.')
+  async create(data: ICreateAuthor): Promise<Author> {
+    return this.prisma.author.create({ data })
   }
   update(author: Author): Promise<Author> {
     throw new Error('Method not implemented.')
