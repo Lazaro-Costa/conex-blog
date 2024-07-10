@@ -6,6 +6,7 @@ import {
   SearchResult,
 } from '../interfaces/authors.repository'
 import { ICreateAuthor } from '../interfaces/create-author'
+import { NotFoundError } from '@/shared/errors/not-found-error'
 
 export class AuthorsPrismaRepository implements IAuthorsRepository {
   constructor(private prisma: PrismaService) {}
@@ -19,8 +20,8 @@ export class AuthorsPrismaRepository implements IAuthorsRepository {
   delete(id: string): Promise<Author> {
     throw new Error('Method not implemented.')
   }
-  findById(id: string): Promise<Author> {
-    throw new Error('Method not implemented.')
+  async findById(id: string): Promise<Author> {
+    return await this.get(id)
   }
   findByEmail(email: string): Promise<Author> {
     throw new Error('Method not implemented.')
@@ -28,7 +29,14 @@ export class AuthorsPrismaRepository implements IAuthorsRepository {
   search(params: SearchParams): Promise<SearchResult> {
     throw new Error('Method not implemented.')
   }
-  get(id: string): Promise<Author> {
-    throw new Error('Method not implemented.')
+  async get(id: string): Promise<Author> {
+    const author = await this.prisma.author.findUnique({
+      where: { id },
+    })
+
+    if (!author) {
+      throw new NotFoundError(`Author not found using id: ${id}`)
+    }
+    return author
   }
 }
