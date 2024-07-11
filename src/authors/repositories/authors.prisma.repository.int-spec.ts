@@ -69,6 +69,22 @@ describe('AuthorsPrismaRepository Integration Tests', () => {
     expect(result.name).toBe('test')
     expect(result.email).toBe('test@test.com')
   })
+  test('should throw an error when author ID is not found on delete method', async () => {
+    await expect(
+      repository.delete('75714d4e-50e8-46dc-8182-d6f5ce99359a'),
+    ).rejects.toThrow(
+      new NotFoundError(
+        `Author not found using id: 75714d4e-50e8-46dc-8182-d6f5ce99359a`,
+      ),
+    )
+  })
+  test('should delete an Author', async () => {
+    const data = AuthorDataBuilder({})
+    const author = await prisma.author.create({ data })
+
+    const result = await repository.delete(author.id)
+    expect(result).toMatchObject(author)
+  })
   describe('should search an Author', () => {
     test('should apply pagination when the params are null', async () => {
       const createAt = new Date()
