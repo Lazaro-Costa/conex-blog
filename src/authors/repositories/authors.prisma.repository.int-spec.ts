@@ -25,67 +25,93 @@ describe('AuthorsPrismaRepository Integration Tests', () => {
     await module.close()
   })
 
-  test('should throw an error when author is not found', async () => {
-    await expect(
-      repository.findById('75714d4e-50e8-46dc-8182-d6f5ce99359a'),
-    ).rejects.toThrow(
-      new NotFoundError(
-        `Author not found using id: 75714d4e-50e8-46dc-8182-d6f5ce99359a`,
-      ),
-    )
-  })
-  test('should find an author by id', async () => {
-    const data = AuthorDataBuilder({})
-    const author = await prisma.author.create({ data })
+  describe('FindById', () => {
+    test('should find an author by id', async () => {
+      const data = AuthorDataBuilder({})
+      const author = await prisma.author.create({ data })
 
-    const result = await repository.findById(author.id)
-    expect(result).toStrictEqual(author)
-  })
-  test('should create an Author', async () => {
-    const data = AuthorDataBuilder({})
-    const result = await repository.create(data)
-    expect(result).toMatchObject(data)
-  })
-  test('should throw an error when author ID is not found on update method', async () => {
-    const data = AuthorDataBuilder({})
-    const author = {
-      id: '75714d4e-50e8-46dc-8182-d6f5ce99359a',
-      ...data,
-    }
-    await expect(repository.update(author)).rejects.toThrow(
-      new NotFoundError(
-        `Author not found using id: 75714d4e-50e8-46dc-8182-d6f5ce99359a`,
-      ),
-    )
-  })
-  test('should update an Author', async () => {
-    const data = AuthorDataBuilder({})
-    const author = await prisma.author.create({ data })
-    const result = await repository.update({
-      ...author,
-      name: 'test',
-      email: 'test@test.com',
+      const result = await repository.findById(author.id)
+      expect(result).toStrictEqual(author)
     })
-    expect(result.name).toBe('test')
-    expect(result.email).toBe('test@test.com')
+    test('should throw an error when author is not found', async () => {
+      await expect(
+        repository.findById('75714d4e-50e8-46dc-8182-d6f5ce99359a'),
+      ).rejects.toThrow(
+        new NotFoundError(
+          `Author not found using id: 75714d4e-50e8-46dc-8182-d6f5ce99359a`,
+        ),
+      )
+    })
   })
-  test('should throw an error when author ID is not found on delete method', async () => {
-    await expect(
-      repository.delete('75714d4e-50e8-46dc-8182-d6f5ce99359a'),
-    ).rejects.toThrow(
-      new NotFoundError(
-        `Author not found using id: 75714d4e-50e8-46dc-8182-d6f5ce99359a`,
-      ),
-    )
-  })
-  test('should delete an Author', async () => {
-    const data = AuthorDataBuilder({})
-    const author = await prisma.author.create({ data })
 
-    const result = await repository.delete(author.id)
-    expect(result).toMatchObject(author)
+  describe('Create', () => {
+    test('should create an Author', async () => {
+      const data = AuthorDataBuilder({})
+      const result = await repository.create(data)
+      expect(result).toMatchObject(data)
+    })
   })
-  describe('should search an Author', () => {
+
+  describe('Update', () => {
+    test('should throw an error when author ID is not found on update method', async () => {
+      const data = AuthorDataBuilder({})
+      const author = {
+        id: '75714d4e-50e8-46dc-8182-d6f5ce99359a',
+        ...data,
+      }
+      await expect(repository.update(author)).rejects.toThrow(
+        new NotFoundError(
+          `Author not found using id: 75714d4e-50e8-46dc-8182-d6f5ce99359a`,
+        ),
+      )
+    })
+    test('should update an Author', async () => {
+      const data = AuthorDataBuilder({})
+      const author = await prisma.author.create({ data })
+      const result = await repository.update({
+        ...author,
+        name: 'test',
+        email: 'test@test.com',
+      })
+      expect(result.name).toBe('test')
+      expect(result.email).toBe('test@test.com')
+    })
+  })
+
+  describe('Delete', () => {
+    test('should throw an error when author ID is not found on delete method', async () => {
+      await expect(
+        repository.delete('75714d4e-50e8-46dc-8182-d6f5ce99359a'),
+      ).rejects.toThrow(
+        new NotFoundError(
+          `Author not found using id: 75714d4e-50e8-46dc-8182-d6f5ce99359a`,
+        ),
+      )
+    })
+    test('should delete an Author', async () => {
+      const data = AuthorDataBuilder({})
+      const author = await prisma.author.create({ data })
+
+      const result = await repository.delete(author.id)
+      expect(result).toMatchObject(author)
+    })
+  })
+
+  describe('FindByEmail', () => {
+    test('should return null when finding a unexistent email Author', async () => {
+      const result = await repository.findByEmail('test@test.com')
+      expect(result).toBeNull()
+    })
+    test('should return an Author by email', async () => {
+      const data = AuthorDataBuilder({})
+      const author = await prisma.author.create({ data })
+
+      const result = await repository.findByEmail(author.email)
+      expect(result).toMatchObject(author)
+    })
+  })
+
+  describe('Search', () => {
     test('should apply pagination when the params are null', async () => {
       const createAt = new Date()
       const data = []
